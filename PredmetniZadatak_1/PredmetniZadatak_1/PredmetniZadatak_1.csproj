@@ -55,6 +55,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="BFS\BfsAglorithm.cs" />
+    <Compile Include="Dots\DotFormater.cs" />
+    <Compile Include="Dots\DotScaler.cs" />
+    <Compile Include="Lines\LineScaler.cs" />
+    <Compile Include="Lines\LineFormer.cs" />
+    <Compile Include="Model\DotModel.cs" />
+    <Compile Include="XmlLoader.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
