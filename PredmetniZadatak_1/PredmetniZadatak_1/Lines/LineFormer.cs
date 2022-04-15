@@ -16,6 +16,7 @@ namespace PredmetniZadatak_1.Lines
         Dictionary<long, int> dotModelX = new Dictionary<long, int>();
         Dictionary<long, int> dotModelY = new Dictionary<long, int>();
         BfsAlgorithm bfs = new BfsAlgorithm();
+        private List<Tuple<double, long, long>> leftLines = new List<Tuple<double, long, long>>();
         private List<Tuple<double, long, long>> distanceLineIds = new List<Tuple<double, long, long>>();
 
         public LineFormer(List<DotModel> dotModels) : base()
@@ -28,42 +29,13 @@ namespace PredmetniZadatak_1.Lines
             }
         }
 
-        public List<Line> AddLine()
+        public List<Line> AddLineBfs()
         {
             LeastToMostDistance();
 
             List<Line> lines = new List<Line>();
 
-            //int i = 203;
-
-            //if (dotModelX.ContainsKey(this.LineIDs.Item1[i]) && dotModelY.ContainsKey(this.LineIDs.Item1[i])
-            //   && dotModelX.ContainsKey(this.LineIDs.Item2[i]) && dotModelY.ContainsKey(this.LineIDs.Item2[i]))
-            //{
-            //    int startX = dotModelX[this.LineIDs.Item1[i]];
-            //    int startY = 960 - dotModelY[this.LineIDs.Item1[i]];
-            //    int endX = dotModelX[this.LineIDs.Item2[i]];
-            //    int endY = 960 - dotModelY[this.LineIDs.Item2[i]];
-
-            //    int moves = bfs.Solve(startX, startY, endX, endY);
-
-            //    List<Node> nodes = bfs.ReconstructPath(startX, startY, endX, endY);
-
-            //    for (int j = 0; j < nodes.Count - 1; j++)
-            //    {
-            //        lines.Add(new Line()
-            //        {
-            //            X1 = nodes[j].row,
-            //            Y1 = nodes[j].colum,
-            //            X2 = nodes[j + 1].row,
-            //            Y2 = nodes[j + 1].colum,
-            //            StrokeThickness = 0.5,
-            //            Stroke = Brushes.Red,
-            //            Fill = Brushes.Red
-            //        });
-            //    }
-            //}
-
-            for (int i = 0; i < 62; i++)//distanceLineIds.Count
+            for (int i = 0; i < distanceLineIds.Count; i++)//distanceLineIds.Count
             {
                 if (dotModelX.ContainsKey(distanceLineIds[i].Item2) && dotModelY.ContainsKey(distanceLineIds[i].Item2)
                && dotModelX.ContainsKey(distanceLineIds[i].Item3) && dotModelY.ContainsKey(distanceLineIds[i].Item3))
@@ -75,7 +47,18 @@ namespace PredmetniZadatak_1.Lines
 
                     int moves = bfs.Solve(startX, startY, endX, endY);
 
+                    if (moves == -1)
+                    {
+                        leftLines.Add(distanceLineIds[i]);
+                        continue;
+                    }
+
                     List<Node> nodes = bfs.ReconstructPath(startX, startY, endX, endY);
+
+                    if(nodes.Count == 0)
+                    {
+                        leftLines.Add(distanceLineIds[i]);
+                    }
 
                     for (int j = 0; j < nodes.Count - 1; j++)
                     {
@@ -89,6 +72,76 @@ namespace PredmetniZadatak_1.Lines
                             Stroke = Brushes.Red,
                             Fill = Brushes.Red
                         });
+                    }
+                }
+            }
+
+            return lines;
+        }
+
+        public List<Line> AddLineCrossing(out List<DotModel> crossingDots)
+        {
+            List<Line> lines = new List<Line>();
+            crossingDots = new List<DotModel>();
+            int[,] lineMatrix = bfs.Matrix;
+
+            int a, b, startCoord = 0;
+
+            foreach (var item in leftLines)
+            {
+                lines.Add(new Line()
+                {
+                    X1 = dotModelX[item.Item2],
+                    Y1 = 960 - dotModelY[item.Item2],
+                    X2 = dotModelX[item.Item2],
+                    Y2 = 960 - dotModelY[item.Item3],
+                    StrokeThickness = 0.5,
+                    Stroke = Brushes.Purple,
+                    Fill = Brushes.Purple
+                });
+
+                a = 960 - dotModelY[item.Item2];
+                b = 960 - dotModelY[item.Item3];
+
+                startCoord = a > b ? b : a;
+
+                for (int i = 0; i < Math.Abs(a - b); i++)
+                {
+                    if(lineMatrix[dotModelX[item.Item2], startCoord + i] == 1)
+                    {
+                        crossingDots.Add(new DotModel(dotModelX[item.Item2], startCoord + i, new Ellipse() { Fill = Brushes.Green, Height = 2, Width = 2 }));
+                    }
+                    else
+                    {
+                        lineMatrix[dotModelX[item.Item2], startCoord + i] = 1;
+                    }
+                }
+
+                lines.Add(new Line()
+                {
+                    X1 = dotModelX[item.Item2],
+                    Y1 = 960 - dotModelY[item.Item3],
+                    X2 = dotModelX[item.Item3],
+                    Y2 = 960 - dotModelY[item.Item3],
+                    StrokeThickness = 0.5,
+                    Stroke = Brushes.Purple,
+                    Fill = Brushes.Purple
+                });
+
+                a = dotModelX[item.Item2];
+                b = dotModelX[item.Item3];
+
+                startCoord = a > b ? b : a;
+
+                for (int i = 0; i < Math.Abs(a - b); i++)
+                {
+                    if (lineMatrix[startCoord + i, dotModelY[item.Item3]] == 1)
+                    {
+                        crossingDots.Add(new DotModel(startCoord + i, dotModelY[item.Item3], new Ellipse() { Fill = Brushes.Green, Height = 2, Width = 2 }));
+                    }
+                    else
+                    {
+                        lineMatrix[startCoord + i, 960 - dotModelY[item.Item3]] = 1;
                     }
                 }
             }

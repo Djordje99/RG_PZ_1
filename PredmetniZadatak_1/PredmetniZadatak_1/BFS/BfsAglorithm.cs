@@ -11,7 +11,6 @@ namespace PredmetniZadatak_1.BFS
         public int row;
         public int colum;
     }
-
     public class BfsAlgorithm
     {
         private int rowSize = 960;
@@ -27,6 +26,8 @@ namespace PredmetniZadatak_1.BFS
         private int[] directionRow = new int[] { -1, 1, 0, 0 };
         private int[] directionColum = new int[] { 0, 0, 1, -1 };
         private Node[,] prev;
+
+        public int[,] Matrix { get => matrix; set => matrix = value; }
 
         public BfsAlgorithm()
         {

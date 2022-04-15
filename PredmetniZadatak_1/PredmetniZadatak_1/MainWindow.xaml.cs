@@ -1,5 +1,6 @@
 ﻿using PredmetniZadatak_1.Dots;
 using PredmetniZadatak_1.Lines;
+using PredmetniZadatak_1.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +30,9 @@ namespace PredmetniZadatak_1
         {
             InitializeComponent();
             DrawDots();
-            DrawLines();
+            line = new LineFormer(dot.DotModels);
+            DrawLinesBfs();
+            DrawLinesCrossing();
         }
 
         private void DrawDots()
@@ -45,18 +48,31 @@ namespace PredmetniZadatak_1
             }
         }
 
-        private void DrawLines()
+        private void DrawLinesBfs()
         {
-            line = new LineFormer(dot.DotModels);
-
-            List<Line> lines = line.AddLine();
-
-            //canvas1.Children.Add(lines[0]);
-            //canvas1.Children.Add(lines[1]);
+            List<Line> lines = line.AddLineBfs();
 
             foreach (var item in lines)
             {
                 canvas1.Children.Add(item);
+            }
+        }
+
+        private void DrawLinesCrossing()
+        {
+            List<Line> lines = line.AddLineCrossing(out List<DotModel> crossingDots);
+
+            foreach (var item in lines)
+            {
+                canvas1.Children.Add(item);
+            }
+
+            foreach (var item in crossingDots)
+            {
+                Canvas.SetLeft(item.Ellipse, item.CanvasX);
+                Canvas.SetTop(item.Ellipse, item.CanvasY);
+
+                canvas1.Children.Add(item.Ellipse);
             }
         }
 
