@@ -6,6 +6,12 @@
         xmlns:local="clr-namespace:PredmetniZadatak_1"
         mc:Ignorable="d"
         Title="MainWindow" Height="1000" Width="1000">
-    <Canvas x:Name="canvas1" MouseWheel="Canvas_Zoom">
+    <Canvas x:Name="canvas1" MouseLeftButtonDown="Canvas_Click" Height="960" Width="960">
+        <Rectangle
+            Width="960"
+            Height="960"
+            Fill="LightYellow"
+            Canvas.Left="0"
+            Canvas.Top="0" />
     </Canvas>
 </Window>

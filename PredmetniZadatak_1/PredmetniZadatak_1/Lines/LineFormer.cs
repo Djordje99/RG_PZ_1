@@ -64,10 +64,10 @@ namespace PredmetniZadatak_1.Lines
                     {
                         lines.Add(new Line()
                         {
-                            X1 = nodes[j].row,
-                            Y1 = nodes[j].colum,
-                            X2 = nodes[j + 1].row,
-                            Y2 = nodes[j + 1].colum,
+                            X1 = nodes[j].row + 1.25,
+                            Y1 = nodes[j].colum - 1.25,
+                            X2 = nodes[j + 1].row + 1.25,
+                            Y2 = nodes[j + 1].colum - 1.25,
                             StrokeThickness = 0.5,
                             Stroke = Brushes.Red,
                             Fill = Brushes.Red

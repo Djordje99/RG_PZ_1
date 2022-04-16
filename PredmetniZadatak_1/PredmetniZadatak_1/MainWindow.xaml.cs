@@ -26,13 +26,18 @@ namespace PredmetniZadatak_1
     {
         private DotFormater dot = new DotFormater();
         private LineFormer line;
+        private double zoom = 1;
         public MainWindow()
         {
             InitializeComponent();
+
+            this.canvas1.MouseWheel += Canvas_Zoom;
+            //this.canvas1.MouseLeftButtonDown += Canvas_Click;
+
             DrawDots();
             line = new LineFormer(dot.DotModels);
             DrawLinesBfs();
-            DrawLinesCrossing();
+            //DrawLinesCrossing();
         }
 
         private void DrawDots()
@@ -76,20 +81,24 @@ namespace PredmetniZadatak_1
             }
         }
 
+        private void Canvas_Click(object sender, MouseEventArgs e)
+        {
+            Console.WriteLine("Click");
+        }
+
         private void Canvas_Zoom(object sender, MouseWheelEventArgs e)
         {
-            double zoomMax = 18;
-            double zoomMin = 0.5;
-            double zoomSpeed = 0.001;
-            double zoom = 1;
+            double zoomMax = 50;
+            double zoomMin = 1;
+            double zoomAmount = 5;
 
-            zoom += zoomSpeed * e.Delta; // Ajust zooming speed (e.Delta = Mouse spin value )
+            zoom += zoomAmount * (e.Delta / 120); // Ajust zooming speed (e.Delta = Mouse spin value )
             if (zoom < zoomMin) { zoom = zoomMin; } // Limit Min Scale
             if (zoom > zoomMax) { zoom = zoomMax; } // Limit Max Scale
 
             Point mousePos = e.GetPosition(canvas1);
 
-            if (zoom > 1)
+            if (zoom >= 1 && zoom <= 50)
             {
                 canvas1.RenderTransform = new ScaleTransform(zoom, zoom, mousePos.X, mousePos.Y); // transform Canvas size from mouse position
             }
