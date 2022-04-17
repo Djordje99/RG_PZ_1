@@ -66,20 +66,11 @@ namespace PredmetniZadatak_1.Dots
 
 
                     Ellipse ellipse = new Ellipse();
-                    if (id == "41990" || id == "41992")
-                    {
-                        ellipse.Width = 2;
-                        ellipse.Height = 2;
-                        ellipse.Fill = Brushes.Red;
-                        ellipse.ToolTip = toolTipText;
-                    }
-                    else
-                    {
-                        ellipse.Width = 2;
-                        ellipse.Height = 2;
-                        ellipse.Fill = Brushes.Black;
-                        ellipse.ToolTip = toolTipText;
-                    }
+                    ellipse.Width = 2;
+                    ellipse.Height = 2;
+                    ellipse.Fill = Brushes.Black;
+                    ellipse.ToolTip = toolTipText;
+                    ellipse.Name = "id_" + id;
 
 
                     int utmX = Int32.Parse(node.SelectSingleNode("X").InnerText.Split('.')[0]);

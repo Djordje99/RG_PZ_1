@@ -27,6 +27,7 @@ namespace PredmetniZadatak_1
         private DotFormater dot = new DotFormater();
         private LineFormer line;
         private double zoom = 1;
+        private Dictionary<string, int> indexOnCanvas = new Dictionary<string, int>();
         public MainWindow()
         {
             InitializeComponent();
@@ -49,6 +50,8 @@ namespace PredmetniZadatak_1
                 Canvas.SetLeft(ellipses[i], placeXList[i]);
                 Canvas.SetBottom(ellipses[i], placeYList[i]);
 
+                indexOnCanvas.Add(ellipses[i].Name, i);
+
                 canvas1.Children.Add(ellipses[i]);
             }
         }
@@ -59,6 +62,7 @@ namespace PredmetniZadatak_1
 
             foreach (var item in lines)
             {
+                item.MouseRightButtonDown += ShowColorDialog;
                 canvas1.Children.Add(item);
             }
         }
@@ -79,6 +83,22 @@ namespace PredmetniZadatak_1
 
                 canvas1.Children.Add(item.Ellipse);
             }
+        }
+
+        private void ShowColorDialog(object sender, MouseEventArgs e)
+        {
+            Line sourceLine = e.Source as Line;
+            string toolTipString = sourceLine.ToolTip.ToString().Split(':')[1].Trim();
+            MessageBox.Show(toolTipString);
+
+            //Ellipse ellipse1 = canvas1.FindName("id_" + toolTipString.Split('-')[0]) as Ellipse;
+            //Ellipse ellipse2 = canvas1.FindName("id_" + toolTipString.Split('-')[1]) as Ellipse;
+
+            Ellipse ellipse1 = canvas1.Children[indexOnCanvas["id_" + toolTipString.Split('-')[0]]] as Ellipse;
+            Ellipse ellipse2 = canvas1.Children[indexOnCanvas["id_" + toolTipString.Split('-')[1]]] as Ellipse;
+
+            ellipse1.Fill = Brushes.Red;
+            ellipse2.Fill = Brushes.Red;
         }
 
         private void Canvas_Click(object sender, MouseEventArgs e)

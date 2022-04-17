@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -45,6 +46,9 @@ namespace PredmetniZadatak_1.Lines
                     int endX = dotModelX[distanceLineIds[i].Item3];
                     int endY = 960 - dotModelY[distanceLineIds[i].Item3];
 
+                    ToolTip toolTip = new ToolTip();
+                    toolTip.Content = string.Format("{0}-{1}", distanceLineIds[i].Item2, distanceLineIds[i].Item3);
+
                     int moves = bfs.Solve(startX, startY, endX, endY);
 
                     if (moves == -1)
@@ -70,7 +74,8 @@ namespace PredmetniZadatak_1.Lines
                             Y2 = nodes[j + 1].colum - 1.25,
                             StrokeThickness = 0.5,
                             Stroke = Brushes.Red,
-                            Fill = Brushes.Red
+                            Fill = Brushes.Red,
+                            ToolTip = toolTip,
                         });
                     }
                 }
