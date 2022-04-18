@@ -10,11 +10,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using System.Xml;
 
 namespace PredmetniZadatak_1
@@ -26,18 +28,18 @@ namespace PredmetniZadatak_1
     {
         private DotFormater dot = new DotFormater();
         private LineFormer line;
-        private double zoom = 1;
+        private double zoom = 0;
         private Dictionary<string, int> indexOnCanvas = new Dictionary<string, int>();
+        private Dictionary<int, Tuple<int, int>> indexCoords = new Dictionary<int, Tuple<int, int>>();
         public MainWindow()
         {
             InitializeComponent();
 
             this.canvas1.MouseWheel += Canvas_Zoom;
-            //this.canvas1.MouseLeftButtonDown += Canvas_Click;
 
             DrawDots();
             line = new LineFormer(dot.DotModels);
-            DrawLinesBfs();
+            //DrawLinesBfs();
             //DrawLinesCrossing();
         }
 
@@ -53,6 +55,8 @@ namespace PredmetniZadatak_1
                 indexOnCanvas.Add(ellipses[i].Name, i);
 
                 canvas1.Children.Add(ellipses[i]);
+
+                indexCoords.Add(i, new Tuple<int, int>(placeXList[i], placeYList[i]));
             }
         }
 
@@ -85,25 +89,51 @@ namespace PredmetniZadatak_1
             }
         }
 
-        private void ShowColorDialog(object sender, MouseEventArgs e)
+        private void ShowColorDialog(object sender, System.Windows.Input.MouseEventArgs e)
         {
             Line sourceLine = e.Source as Line;
             string toolTipString = sourceLine.ToolTip.ToString().Split(':')[1].Trim();
-            MessageBox.Show(toolTipString);
-
-            //Ellipse ellipse1 = canvas1.FindName("id_" + toolTipString.Split('-')[0]) as Ellipse;
-            //Ellipse ellipse2 = canvas1.FindName("id_" + toolTipString.Split('-')[1]) as Ellipse;
 
             Ellipse ellipse1 = canvas1.Children[indexOnCanvas["id_" + toolTipString.Split('-')[0]]] as Ellipse;
             Ellipse ellipse2 = canvas1.Children[indexOnCanvas["id_" + toolTipString.Split('-')[1]]] as Ellipse;
 
-            ellipse1.Fill = Brushes.Red;
-            ellipse2.Fill = Brushes.Red;
-        }
+            ColorDialog colorPicker = new ColorDialog();
+            
+            if(colorPicker.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                SolidColorBrush color = new SolidColorBrush(Color.FromArgb(colorPicker.Color.A, colorPicker.Color.R, colorPicker.Color.G, colorPicker.Color.B));
 
-        private void Canvas_Click(object sender, MouseEventArgs e)
-        {
-            Console.WriteLine("Click");
+                Ellipse e1 = new Ellipse()
+                {
+                    Width = 2,
+                    Height = 2,
+                    Fill = color,
+                    ToolTip = ellipse1.ToolTip,
+                };
+                Ellipse e2 = new Ellipse()
+                {
+                    Width = 2,
+                    Height = 2,
+                    Fill = color,
+                    ToolTip = ellipse2.ToolTip,
+                };
+
+                int x = indexCoords[indexOnCanvas["id_" + toolTipString.Split('-')[0]]].Item1;
+                int y = indexCoords[indexOnCanvas["id_" + toolTipString.Split('-')[0]]].Item2;
+                Canvas.SetLeft(e1, x);
+                Canvas.SetBottom(e1, y);
+
+                canvas1.Children.Add(e1);
+
+                x = indexCoords[indexOnCanvas["id_" + toolTipString.Split('-')[1]]].Item1;
+                y = indexCoords[indexOnCanvas["id_" + toolTipString.Split('-')[1]]].Item2;
+                Canvas.SetLeft(e2, x);
+                Canvas.SetBottom(e2, y);
+
+                canvas1.Children.Add(e2);
+
+            }
+
         }
 
         private void Canvas_Zoom(object sender, MouseWheelEventArgs e)
@@ -112,357 +142,20 @@ namespace PredmetniZadatak_1
             double zoomMin = 1;
             double zoomAmount = 5;
 
-            zoom += zoomAmount * (e.Delta / 120); // Ajust zooming speed (e.Delta = Mouse spin value )
-            if (zoom < zoomMin) { zoom = zoomMin; } // Limit Min Scale
-            if (zoom > zoomMax) { zoom = zoomMax; } // Limit Max Scale
+            zoom += zoomAmount * (e.Delta / 120);
+            if (zoom < zoomMin) { zoom = zoomMin; }
+            if (zoom > zoomMax) { zoom = zoomMax; }
 
             Point mousePos = e.GetPosition(canvas1);
 
             if (zoom >= 1 && zoom <= 50)
             {
-                canvas1.RenderTransform = new ScaleTransform(zoom, zoom, mousePos.X, mousePos.Y); // transform Canvas size from mouse position
+                canvas1.RenderTransform = new ScaleTransform(zoom, zoom, mousePos.X, mousePos.Y);
             }
             else
             {
-                canvas1.RenderTransform = new ScaleTransform(zoom, zoom); // transform Canvas size
+                canvas1.RenderTransform = new ScaleTransform(zoom, zoom);
             }
         }
-
-
-        #region oldFuctions
-        //private void AddSubstations()
-        //{
-        //    XmlNodeList nodes = xmlLoader.ReadXml("/NetworkModel/Substations/SubstationEntity");
-
-        //    foreach (XmlNode node in nodes)
-        //    {
-        //        Console.WriteLine(node);
-
-        //        string id = node.SelectSingleNode("Id").InnerText;
-        //        string name = node.SelectSingleNode("Name").InnerText;
-
-        //        Ellipse ellipse = new Ellipse
-        //        {
-        //            Width = 2,
-        //            Height = 2,
-        //            Fill = Brushes.Black,
-        //        };
-
-        //        double utmX = double.Parse(node.SelectSingleNode("X").InnerText);
-        //        double utmY = double.Parse(node.SelectSingleNode("X").InnerText);
-        //        double X;
-        //        double Y;
-
-        //        ConvertToLatLon.ToLatLon(utmX, utmY, 34, out X, out Y);
-
-        //        Console.WriteLine(string.Format("{0}, {1}", X, Y));
-
-        //        long decimalX = Int64.Parse(X.ToString().Split('.')[1]) % canvasDim;
-        //        long decimalY = Int64.Parse(Y.ToString().Split('.')[1]) % canvasDim; //namapira se na velicinu kanvasa
-
-        //        //spiral search algorithm
-        //        long devDecimalX;
-        //        long devDecimalY;
-
-        //        while (true)
-        //        {
-        //            devDecimalX = decimalX / 3;
-        //            devDecimalY = decimalY / 3;
-        //            if (dotsMatrix[devDecimalX, devDecimalY] == false) //trazi se kordinata da ima 3x3 slobodan prostor za smestanje tacke
-        //            {
-        //                dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                break;
-        //            }
-
-        //            while (true)//i >= 8 * siprlCount)
-        //            {
-        //                if (devDecimalY + 1 < 300)
-        //                    devDecimalY++;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                if (devDecimalX + 1 < 300)
-        //                    devDecimalX++;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                decimalY--;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                decimalY--;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                decimalX--;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                decimalX--;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                if (devDecimalY + 1 < 300)
-        //                    devDecimalY++;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                if (devDecimalY + 1 < 300)
-        //                    devDecimalY++;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                if (devDecimalX + 1 < 300)
-        //                    devDecimalX++;
-
-        //            }
-        //        }
-
-        //        Canvas.SetLeft(ellipse, devDecimalX * 3);
-        //        Canvas.SetTop(ellipse, devDecimalY * 3);
-
-        //        canvas1.Children.Add(ellipse);
-        //    }
-        //}
-
-        //private void AddNodes()
-        //{
-        //    XmlNodeList nodes = xmlLoader.ReadXml("/NetworkModel/Nodes/NodeEntity");
-
-        //    foreach (XmlNode node in nodes)
-        //    {
-        //        Console.WriteLine(node);
-
-        //        string id = node.SelectSingleNode("Id").InnerText;
-        //        string name = node.SelectSingleNode("Name").InnerText;
-
-        //        Ellipse ellipse = new Ellipse
-        //        {
-        //            Width = 2,
-        //            Height = 2,
-        //            Fill = Brushes.Black,
-        //        };
-
-        //        double utmX = double.Parse(node.SelectSingleNode("X").InnerText);
-        //        double utmY = double.Parse(node.SelectSingleNode("X").InnerText);
-        //        double X;
-        //        double Y;
-
-        //        ConvertToLatLon.ToLatLon(utmX, utmY, 34, out X, out Y);
-
-        //        Console.WriteLine(string.Format("{0}, {1}", X, Y));
-
-        //        long decimalX = Int64.Parse(X.ToString().Split('.')[1]) % canvasDim;
-        //        long decimalY = Int64.Parse(Y.ToString().Split('.')[1]) % canvasDim;
-
-        //        int i = 0;
-        //        int siprlCount = 1;
-
-        //        long devDecimalX;
-        //        long devDecimalY;
-
-        //        while (true)
-        //        {
-        //            devDecimalX = decimalX / 3;
-        //            devDecimalY = decimalY / 3;
-        //            if (dotsMatrix[devDecimalX, devDecimalY] == false) //trazi se kordinata da ima 3x3 slobodan prostor za smestanje tacke
-        //            {
-        //                dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                break;
-        //            }
-
-        //            while (true)//i >= 8 * siprlCount)
-        //            {
-        //                if (devDecimalY + 1 < 300)
-        //                    devDecimalY++;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                if (devDecimalX + 1 < 300)
-        //                    devDecimalX++;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                decimalY--;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                decimalY--;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                decimalX--;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                decimalX--;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                if (devDecimalY + 1 < 300)
-        //                    devDecimalY++;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                if (devDecimalY + 1 < 300)
-        //                    devDecimalY++;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                if (devDecimalX + 1 < 300)
-        //                    devDecimalX++;
-
-        //            }
-        //        }
-
-        //        Canvas.SetLeft(ellipse, devDecimalX * 3);
-        //        Canvas.SetTop(ellipse, devDecimalY * 3);
-
-        //        canvas1.Children.Add(ellipse);
-        //    }
-        //}
-
-        //private void AddSwitches()
-        //{
-        //    XmlNodeList nodes = xmlLoader.ReadXml("/NetworkModel/Switches/SwitchEntity");
-
-        //    foreach (XmlNode node in nodes)
-        //    {
-        //        Console.WriteLine(node);
-
-        //        string id = node.SelectSingleNode("Id").InnerText;
-        //        string name = node.SelectSingleNode("Name").InnerText;
-
-        //        Ellipse ellipse = new Ellipse
-        //        {
-        //            Width = 2,
-        //            Height = 2,
-        //            Fill = Brushes.Black,
-        //        };
-
-        //        double utmX = double.Parse(node.SelectSingleNode("X").InnerText);
-        //        double utmY = double.Parse(node.SelectSingleNode("X").InnerText);
-        //        double X;
-        //        double Y;
-
-        //        ConvertToLatLon.ToLatLon(utmX, utmY, 34, out X, out Y);
-
-        //        Console.WriteLine(string.Format("{0}, {1}", X, Y));
-
-        //        long decimalX = Int64.Parse(X.ToString().Split('.')[1]) % canvasDim;
-        //        long decimalY = Int64.Parse(Y.ToString().Split('.')[1]) % canvasDim;
-
-        //        long devDecimalX;
-        //        long devDecimalY;
-
-        //        while (true)
-        //        {
-        //            devDecimalX = decimalX / 3;
-        //            devDecimalY = decimalY / 3;
-        //            if (dotsMatrix[devDecimalX, devDecimalY] == false) //trazi se kordinata da ima 3x3 slobodan prostor za smestanje tacke
-        //            {
-        //                dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                break;
-        //            }
-
-        //            while (true)//i >= 8 * siprlCount)
-        //            {
-        //                if (devDecimalY + 1 < 300)
-        //                    devDecimalY++;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                if (devDecimalX + 1 < 300)
-        //                    devDecimalX++;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                decimalY--;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                decimalY--;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                decimalX--;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                decimalX--;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                if (devDecimalY + 1 < 300)
-        //                    devDecimalY++;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                if (devDecimalY + 1 < 300)
-        //                    devDecimalY++;
-        //                if (dotsMatrix[devDecimalX, devDecimalY] == false)
-        //                {
-        //                    dotsMatrix[devDecimalX, devDecimalY] = true;
-        //                    break;
-        //                }
-        //                if (devDecimalX + 1 < 300)
-        //                    devDecimalX++;
-
-        //            }
-        //        }
-
-        //        Canvas.SetLeft(ellipse, devDecimalX * 3);
-        //        Canvas.SetTop(ellipse, devDecimalY * 3);
-
-        //        canvas1.Children.Add(ellipse);
-        //    }
-        //}
-        #endregion
     }
 }

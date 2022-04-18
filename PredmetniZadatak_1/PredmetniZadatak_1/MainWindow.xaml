@@ -5,13 +5,29 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PredmetniZadatak_1"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1000" Width="1000">
-    <Canvas x:Name="canvas1" MouseLeftButtonDown="Canvas_Click" Height="960" Width="960">
-        <Rectangle
-            Width="960"
-            Height="960"
-            Fill="LightYellow"
-            Canvas.Left="0"
-            Canvas.Top="0" />
-    </Canvas>
+        Title="MainWindow" Height="1030" Width="1000">
+    <Grid>
+        <Menu Grid.Row="0">
+            <MenuItem Header="Draw Objects">
+                <MenuItem Header="Draw Ellipse"></MenuItem>
+                <MenuItem Header="Draw Polygon"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Add Text"></MenuItem>
+            <MenuItem Header="Commands">
+                <MenuItem Header="Undo"></MenuItem>
+                <MenuItem Header="Redo"></MenuItem>
+                <MenuItem Header="Clear"></MenuItem>
+            </MenuItem>
+        </Menu>
+        <ScrollViewer x:Name="scrollBar" CanContentScroll="True" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
+            <Canvas x:Name="canvas1" Height="960" Width="960">
+                <Rectangle
+                Width="960"
+                Height="960"
+                Fill="LightYellow"
+                Canvas.Left="0"
+                Canvas.Top="20" />
+            </Canvas>
+        </ScrollViewer>
+    </Grid>
 </Window>
