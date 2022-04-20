@@ -24,5 +24,11 @@ namespace PredmetniZadatak_1.Commands
             {
                         new KeyGesture(Key.Y, ModifierKeys.Control)
             });
+
+        public static readonly RoutedUICommand ClearCommand = new RoutedUICommand("ClearCommand", "ClearCommand", typeof(RoutedCommands),
+            new InputGestureCollection()
+            {
+                                new KeyGesture(Key.A, ModifierKeys.Control)
+            });
     }
 }

@@ -40,6 +40,7 @@ namespace PredmetniZadatak_1
         private List<Point> mousePoligonPoints = new List<Point>();
         private List<TextBlock> elementOnCanvas = new List<TextBlock>();
         private List<TextBlock> undoElement = new List<TextBlock>();
+        private bool isClear = false;
 
         #region Property
         public bool DrawEllipseEnable
@@ -140,8 +141,8 @@ namespace PredmetniZadatak_1
 
             DrawDots();
             line = new LineFormer(dot.DotModels);
-            //DrawLinesBfs();
-            //DrawLinesCrossing();
+            DrawLinesBfs();
+            DrawLinesCrossing();
         }
 
         private void DrawDots()
@@ -288,6 +289,11 @@ namespace PredmetniZadatak_1
         {
             e.CanExecute = true;
         }
+
+        private void Clear_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
         #endregion
 
         #region ExecuteCommands
@@ -308,11 +314,24 @@ namespace PredmetniZadatak_1
 
         private void Undo_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if(elementOnCanvas.Count > 0)
+            if (elementOnCanvas.Count > 0)
             {
                 canvas1.Children.Remove(elementOnCanvas[elementOnCanvas.Count - 1]);
                 undoElement.Add(elementOnCanvas[elementOnCanvas.Count - 1]);
-                elementOnCanvas.RemoveAt(elementOnCanvas.Count - 1  );
+                elementOnCanvas.RemoveAt(elementOnCanvas.Count - 1);
+            }
+
+            if (isClear)
+            {
+                foreach (var item in undoElement)
+                {
+                    canvas1.Children.Add(item);
+                    elementOnCanvas.Add(item);
+                }
+
+                undoElement.Clear();
+
+                isClear = false;
             }
         }
 
@@ -321,9 +340,22 @@ namespace PredmetniZadatak_1
             if (undoElement.Count > 0)
             {
                 canvas1.Children.Add(undoElement[undoElement.Count - 1]);
-                undoElement.RemoveAt(undoElement.Count - 1);
                 elementOnCanvas.Add(undoElement[undoElement.Count - 1]);
+                undoElement.RemoveAt(undoElement.Count - 1);
             }
+        }
+
+        private void Clear_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            foreach (var item in elementOnCanvas)
+            {
+                canvas1.Children.Remove(item);
+                undoElement.Add(item);
+            }
+
+            elementOnCanvas.Clear();
+
+            isClear = true;
         }
         #endregion
 

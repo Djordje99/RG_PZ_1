@@ -13,6 +13,7 @@
         <CommandBinding Command="static:RoutedCommands.AddTextCommand" CanExecute="AddText_CanExecute" Executed="AddText_Executed"></CommandBinding>
         <CommandBinding Command="static:RoutedCommands.UndoCommand" CanExecute="Undo_CanExecute" Executed="Undo_Executed"></CommandBinding>
         <CommandBinding Command="static:RoutedCommands.RedoCommand" CanExecute="Redo_CanExecute" Executed="Redo_Executed"></CommandBinding>
+        <CommandBinding Command="static:RoutedCommands.ClearCommand" CanExecute="Clear_CanExecute" Executed="Clear_Executed"></CommandBinding>
     </Window.CommandBindings>
         <DockPanel>
         <Menu DockPanel.Dock="Top" Height="20">
@@ -24,7 +25,7 @@
             <MenuItem Header="Commands">
                 <MenuItem Header="Undo" Command="static:RoutedCommands.UndoCommand"></MenuItem>
                 <MenuItem Header="Redo" Command="static:RoutedCommands.RedoCommand"></MenuItem>
-                <MenuItem Header="Clear"></MenuItem>
+                <MenuItem Header="Clear" Command="static:RoutedCommands.ClearCommand"></MenuItem>
             </MenuItem>
         </Menu>
         <ScrollViewer x:Name="scrollBar" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
