@@ -58,11 +58,23 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BFS\BfsAglorithm.cs" />
+    <Compile Include="Commands\CanExecuteCommands.cs" />
+    <Compile Include="Commands\ExecuteCommands.cs" />
+    <Compile Include="Commands\RoutedCommands.cs" />
     <Compile Include="Dots\DotFormater.cs" />
     <Compile Include="Dots\DotScaler.cs" />
     <Compile Include="Lines\LineScaler.cs" />
     <Compile Include="Lines\LineFormer.cs" />
     <Compile Include="Model\DotModel.cs" />
+    <Compile Include="Windows\EllipseWindow.xaml.cs">
+      <DependentUpon>EllipseWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\PolygonWindow.xaml.cs">
+      <DependentUpon>PolygonWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\TextWindow.xaml.cs">
+      <DependentUpon>TextWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="XmlLoader.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -76,6 +88,18 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Windows\EllipseWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\PolygonWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\TextWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

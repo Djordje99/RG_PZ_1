@@ -18,6 +18,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Xml;
+using PredmetniZadatak_1.Commands;
+using PredmetniZadatak_1.Windows;
+using System.ComponentModel;
 
 namespace PredmetniZadatak_1
 {
@@ -31,10 +34,108 @@ namespace PredmetniZadatak_1
         private double zoom = 0;
         private Dictionary<string, int> indexOnCanvas = new Dictionary<string, int>();
         private Dictionary<int, Tuple<int, int>> indexCoords = new Dictionary<int, Tuple<int, int>>();
+        private bool _drawEllipse = false;
+        private bool _drawPolygon = false;
+        private bool _addText = false;
+        private List<Point> mousePoligonPoints = new List<Point>();
+        private List<TextBlock> elementOnCanvas = new List<TextBlock>();
+        private List<TextBlock> undoElement = new List<TextBlock>();
+
+        #region Property
+        public bool DrawEllipseEnable
+        {
+            get
+            {
+                return _drawEllipse;
+            }
+            set
+            {
+                if (_drawEllipse != value)
+                {
+                    _drawEllipse = value;
+
+                    if (_drawEllipse &&_drawPolygon)
+                    {
+                        _drawPolygon = false;
+                        poCheck.IsChecked = _drawPolygon;
+                    }
+                    if(_drawEllipse && _addText)
+                    {
+                        _addText = false;
+                        textCheck.IsChecked = _addText;
+                    }
+                    OnPropertyChanged("DrawEllipseEnable");
+                }
+            }
+        }
+
+        public bool DrawPolygonEnable
+        {
+            get
+            {
+                return _drawPolygon;
+            }
+            set
+            {
+                if (_drawPolygon != value)
+                {
+                    _drawPolygon = value;
+                    if (_drawPolygon && _drawEllipse)
+                    {
+                        _drawEllipse = false;
+                        elCheck.IsChecked = _drawEllipse;
+                    }
+                    if(_drawPolygon && _addText)
+                    {
+                        _addText = false;
+                        textCheck.IsChecked = _addText;
+                    }
+                    OnPropertyChanged("DrawPolygonEnable");
+                }
+            }
+        }
+
+        public bool AddTextEnable
+        {
+            get
+            {
+                return _addText;
+            }
+            set
+            {
+                if (_addText != value)
+                {
+                    _addText = value;
+                    if (_addText && _drawEllipse)
+                    {
+                        _drawEllipse = false;
+                        elCheck.IsChecked = _drawEllipse;
+                    }
+                    if(_addText && _drawPolygon)
+                    {
+                        _drawPolygon = false;
+                        poCheck.IsChecked = _drawPolygon;
+                    }
+                    OnPropertyChanged("AddTextEnable");
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
+        #endregion
+
         public MainWindow()
         {
             InitializeComponent();
-
+            this.DataContext = this;
             this.canvas1.MouseWheel += Canvas_Zoom;
 
             DrawDots();
@@ -140,7 +241,7 @@ namespace PredmetniZadatak_1
         {
             double zoomMax = 50;
             double zoomMin = 1;
-            double zoomAmount = 5;
+            double zoomAmount = 0.25;
 
             zoom += zoomAmount * (e.Delta / 120);
             if (zoom < zoomMin) { zoom = zoomMin; }
@@ -150,12 +251,195 @@ namespace PredmetniZadatak_1
 
             if (zoom >= 1 && zoom <= 50)
             {
-                canvas1.RenderTransform = new ScaleTransform(zoom, zoom, mousePos.X, mousePos.Y);
+                canvas1.LayoutTransform = new ScaleTransform(zoom, zoom, mousePos.X, mousePos.Y);
+                scrollBar.ScrollToVerticalOffset(scrollBar.ActualHeight * (960 / mousePos.X));
+                scrollBar.ScrollToHorizontalOffset(scrollBar.ActualWidth * (960 / mousePos.Y));
             }
             else
             {
-                canvas1.RenderTransform = new ScaleTransform(zoom, zoom);
+                canvas1.LayoutTransform = new ScaleTransform(zoom, zoom);
+                scrollBar.ScrollToVerticalOffset(scrollBar.ActualHeight * (960 / mousePos.X));
+                scrollBar.ScrollToHorizontalOffset(scrollBar.ActualWidth * (960 / mousePos.Y));
             }
         }
+
+        #region CanExecuteCommands
+        private void DrawEllipse_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void DrawPolygon_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void AddText_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void Undo_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void Redo_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+        #endregion
+
+        #region ExecuteCommands
+        private void DrawEllipse_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+
+        }
+
+        private void DrawPolygon_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+
+        }
+
+        private void AddText_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+
+        }
+
+        private void Undo_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if(elementOnCanvas.Count > 0)
+            {
+                canvas1.Children.Remove(elementOnCanvas[elementOnCanvas.Count - 1]);
+                undoElement.Add(elementOnCanvas[elementOnCanvas.Count - 1]);
+                elementOnCanvas.RemoveAt(elementOnCanvas.Count - 1  );
+            }
+        }
+
+        private void Redo_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (undoElement.Count > 0)
+            {
+                canvas1.Children.Add(undoElement[undoElement.Count - 1]);
+                undoElement.RemoveAt(undoElement.Count - 1);
+                elementOnCanvas.Add(undoElement[undoElement.Count - 1]);
+            }
+        }
+        #endregion
+
+        #region ClickEvents
+        private void RightButtonDown_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (_drawEllipse)
+            {
+                Point mousePos = e.GetPosition(canvas1);
+
+                EllipseWindow ew = new EllipseWindow();
+                ew.ShowDialog();
+
+                Ellipse el = new Ellipse()
+                {
+                    Width = ew.widthProp,
+                    Height = ew.heightProp,
+                    Fill = ew.colorFillProp,
+                    StrokeThickness = ew.borderProp,
+                    Stroke = ew.colorBorderProp,
+                };
+
+                VisualBrush vb = new VisualBrush();
+                vb.Visual = el;
+                TextBlock tb = new TextBlock()
+                {
+                    Text = ew.textProp,
+                    Foreground = ew.colorTextProp,
+                    Height = ew.heightProp + 10,
+                    Width = ew.widthProp + 10,
+                    TextAlignment = TextAlignment.Center,
+                    Padding = new Thickness() { Top = ((ew.heightProp - 6) / 2) },
+                    Margin = new Thickness() { Top = mousePos.Y - (ew.heightProp / 2), Left = mousePos.X - (ew.widthProp / 2) }
+                };
+
+                tb.Background = vb;
+
+                elementOnCanvas.Add(tb);
+
+                canvas1.Children.Add(tb);
+            }
+            else if (_drawPolygon)
+            {
+                Point mousePos = e.GetPosition(canvas1);
+
+                mousePoligonPoints.Add(mousePos);
+
+            }
+            else if (_addText)
+            {
+                Point mousePos = e.GetPosition(canvas1);
+
+                TextWindow tw = new TextWindow();
+                tw.ShowDialog();
+
+                TextBlock tb = new TextBlock()
+                {
+                    Text = tw.textProp,
+                    Foreground = tw.colorTextProp,
+                    TextAlignment = TextAlignment.Center,
+                    FontSize = tw.textSizeProp,
+                    Padding = new Thickness() { Top = mousePos.Y - tw.textSizeProp, Left = mousePos.X }
+                };
+
+                elementOnCanvas.Add(tb);
+
+                canvas1.Children.Add(tb);
+            }
+        }
+
+        private void LeftButtomDown_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (mousePoligonPoints.Count < 3)
+                return;
+
+
+            PolygonWindow pw = new PolygonWindow();
+            pw.ShowDialog();
+
+            double heightMax = mousePoligonPoints.Max(x => x.Y);
+            double heightMin = mousePoligonPoints.Min(x => x.Y);
+            double widthMax = mousePoligonPoints.Max(x => x.X);
+            double widthMin = mousePoligonPoints.Min(x => x.X);
+
+            StackPanel sp = new StackPanel();
+
+            Polygon polygon = new Polygon()
+            {
+                Points = new PointCollection(mousePoligonPoints),
+                Fill = pw.colorFillProp,
+                Stroke = pw.colorBorderProp,
+                StrokeThickness = pw.borderProp,
+            };
+
+            TextBlock tb = new TextBlock()
+            {
+                Text = pw.textProp,
+                Foreground = pw.colorTextProp,
+                TextAlignment = TextAlignment.Center,
+                Height = heightMax - heightMin,
+                Width = widthMax - widthMin,
+                Margin = new Thickness() { Top = heightMin, Left = widthMin },
+                Padding = new Thickness() { Top = (heightMax - heightMin + 6) / 2 }
+
+            };
+
+            VisualBrush vb = new VisualBrush();
+            vb.Visual = polygon;
+            tb.Background = vb;
+
+            elementOnCanvas.Add(tb);
+
+            canvas1.Children.Add(tb);
+
+            mousePoligonPoints.Clear();
+        }
+        #endregion
     }
 }

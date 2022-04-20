@@ -4,30 +4,40 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PredmetniZadatak_1"
+        xmlns:static="clr-namespace:PredmetniZadatak_1.Commands"
         mc:Ignorable="d"
         Title="MainWindow" Height="1030" Width="1000">
-    <Grid>
-        <Menu Grid.Row="0">
-            <MenuItem Header="Draw Objects">
-                <MenuItem Header="Draw Ellipse"></MenuItem>
-                <MenuItem Header="Draw Polygon"></MenuItem>
+    <Window.CommandBindings>
+        <CommandBinding Command="static:RoutedCommands.DrawEllipseCommand" CanExecute="DrawEllipse_CanExecute" Executed="DrawEllipse_Executed"></CommandBinding>
+        <CommandBinding Command="static:RoutedCommands.DrawPolygonCommand" CanExecute="DrawPolygon_CanExecute" Executed="DrawPolygon_Executed"></CommandBinding>
+        <CommandBinding Command="static:RoutedCommands.AddTextCommand" CanExecute="AddText_CanExecute" Executed="AddText_Executed"></CommandBinding>
+        <CommandBinding Command="static:RoutedCommands.UndoCommand" CanExecute="Undo_CanExecute" Executed="Undo_Executed"></CommandBinding>
+        <CommandBinding Command="static:RoutedCommands.RedoCommand" CanExecute="Redo_CanExecute" Executed="Redo_Executed"></CommandBinding>
+    </Window.CommandBindings>
+        <DockPanel>
+        <Menu DockPanel.Dock="Top" Height="20">
+            <MenuItem Header="Add Items">
+                <MenuItem Name="elCheck" Header="Draw Ellipse" IsCheckable="True" Command="static:RoutedCommands.DrawEllipseCommand" IsChecked="{Binding Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Path=DrawEllipseEnable}"></MenuItem>
+                <MenuItem Name="poCheck" Header="Draw Polygon" IsCheckable="True" Command="static:RoutedCommands.DrawPolygonCommand" IsChecked="{Binding Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Path=DrawPolygonEnable}"></MenuItem>
+                <MenuItem Name="textCheck" Header="Add Text" IsCheckable="True" Command="static:RoutedCommands.AddTextCommand" IsChecked="{Binding Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Path=AddTextEnable}"></MenuItem>
             </MenuItem>
-            <MenuItem Header="Add Text"></MenuItem>
             <MenuItem Header="Commands">
-                <MenuItem Header="Undo"></MenuItem>
-                <MenuItem Header="Redo"></MenuItem>
+                <MenuItem Header="Undo" Command="static:RoutedCommands.UndoCommand"></MenuItem>
+                <MenuItem Header="Redo" Command="static:RoutedCommands.RedoCommand"></MenuItem>
                 <MenuItem Header="Clear"></MenuItem>
             </MenuItem>
         </Menu>
-        <ScrollViewer x:Name="scrollBar" CanContentScroll="True" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
-            <Canvas x:Name="canvas1" Height="960" Width="960">
-                <Rectangle
-                Width="960"
-                Height="960"
-                Fill="LightYellow"
-                Canvas.Left="0"
-                Canvas.Top="20" />
-            </Canvas>
+        <ScrollViewer x:Name="scrollBar" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Canvas x:Name="canvas1" Height="960" Width="960" MouseRightButtonDown="RightButtonDown_Click" MouseLeftButtonDown="LeftButtomDown_Click">
+                    <Rectangle
+                        Width="960"
+                        Height="960"
+                        Fill="LightYellow"
+                        Canvas.Left="0"
+                        Canvas.Top="0" />
+                </Canvas>
+            </Border>
         </ScrollViewer>
-    </Grid>
+    </DockPanel>
 </Window>
