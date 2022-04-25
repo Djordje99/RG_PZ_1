@@ -17,8 +17,8 @@ namespace PredmetniZadatak_1.Lines
         Dictionary<long, int> dotModelX = new Dictionary<long, int>();
         Dictionary<long, int> dotModelY = new Dictionary<long, int>();
         BfsAlgorithm bfs = new BfsAlgorithm();
-        private List<Tuple<double, long, long>> leftLines = new List<Tuple<double, long, long>>();
-        private List<Tuple<double, long, long>> distanceLineIds = new List<Tuple<double, long, long>>();
+        private List<Tuple<double, string, long, long>> leftLines = new List<Tuple<double, string, long, long>>();
+        private List<Tuple<double, string, long, long>> distanceLineIds = new List<Tuple<double, string, long, long>>();
 
         public LineFormer(List<DotModel> dotModels) : base()
         {
@@ -30,125 +30,181 @@ namespace PredmetniZadatak_1.Lines
             }
         }
 
-        public List<Line> AddLineBfs()
+        public List<Polyline> AddLineBfs()
         {
             LeastToMostDistance();
 
-            List<Line> lines = new List<Line>();
+            List<Polyline> lines = new List<Polyline>();
 
-            for (int i = 0; i < distanceLineIds.Count; i++)//distanceLineIds.Count
+            foreach (var line in distanceLineIds)
             {
-                if (dotModelX.ContainsKey(distanceLineIds[i].Item2) && dotModelY.ContainsKey(distanceLineIds[i].Item2)
-               && dotModelX.ContainsKey(distanceLineIds[i].Item3) && dotModelY.ContainsKey(distanceLineIds[i].Item3))
+                if (dotModelX.ContainsKey(line.Item3) && dotModelY.ContainsKey(line.Item3)
+              && dotModelX.ContainsKey(line.Item4) && dotModelY.ContainsKey(line.Item4))
                 {
-                    int startX = dotModelX[distanceLineIds[i].Item2];
-                    int startY = 960 - dotModelY[distanceLineIds[i].Item2];
-                    int endX = dotModelX[distanceLineIds[i].Item3];
-                    int endY = 960 - dotModelY[distanceLineIds[i].Item3];
+                    int startX = dotModelX[line.Item3];
+                    int startY = 960 - dotModelY[line.Item3];
+                    int endX = dotModelX[line.Item4];
+                    int endY = 960 - dotModelY[line.Item4];
 
                     ToolTip toolTip = new ToolTip();
-                    toolTip.Content = string.Format("{0}-{1}", distanceLineIds[i].Item2, distanceLineIds[i].Item3);
+                    toolTip.Content = line.Item2;
 
                     int moves = bfs.Solve(startX, startY, endX, endY);
 
                     if (moves == -1)
                     {
-                        leftLines.Add(distanceLineIds[i]);
+                        leftLines.Add(line);
                         continue;
                     }
 
-                    List<Node> nodes = bfs.ReconstructPath(startX, startY, endX, endY);
+                    Polyline nodes = bfs.ReconstructPath(startX, startY, endX, endY);
 
-                    if(nodes.Count == 0)
+                    if (nodes.Points.Count == 0)
                     {
-                        leftLines.Add(distanceLineIds[i]);
+                        leftLines.Add(line);
+                        continue;
                     }
 
-                    for (int j = 0; j < nodes.Count - 1; j++)
-                    {
-                        lines.Add(new Line()
-                        {
-                            X1 = nodes[j].row + 1.25,
-                            Y1 = nodes[j].colum - 1.25,
-                            X2 = nodes[j + 1].row + 1.25,
-                            Y2 = nodes[j + 1].colum - 1.25,
-                            StrokeThickness = 0.5,
-                            Stroke = Brushes.Red,
-                            Fill = Brushes.Red,
-                            ToolTip = toolTip,
-                        });
-                    }
+                    nodes.ToolTip = toolTip;
+                    nodes.Stroke = Brushes.Red;
+                    nodes.StrokeThickness = 0.5;
+                    lines.Add(nodes);
                 }
             }
 
-            return lines;
+            return lines.Distinct<Polyline>().ToList();
         }
 
-        public List<Line> AddLineCrossing(out List<DotModel> crossingDots)
+        public List<Polyline> AddLineCrossing(out List<DotModel> crossingDots)
         {
-            List<Line> lines = new List<Line>();
+            List<Polyline> lines = new List<Polyline>();
             crossingDots = new List<DotModel>();
+            List<DotModel> crossingDotsTemp = new List<DotModel>();
             int[,] lineMatrix = bfs.Matrix;
 
-            int a, b, startCoord = 0;
+            int aX, aY, bX, bY;
 
             foreach (var item in leftLines)
             {
-                lines.Add(new Line()
+                ToolTip toolTip = new ToolTip();
+                toolTip.Content = item.Item2;
+                int startCoord = 0;
+
+                aY = 960 - dotModelY[item.Item3];
+                bY = 960 - dotModelY[item.Item4];
+                aX = dotModelX[item.Item3];
+                bX = dotModelX[item.Item4];
+
+                startCoord = aX > bX ? bX : aX;
+
+                for (int i = 0; i < Math.Abs(aX - bX); i++)
                 {
-                    X1 = dotModelX[item.Item2],
-                    Y1 = 960 - dotModelY[item.Item2],
-                    X2 = dotModelX[item.Item2],
-                    Y2 = 960 - dotModelY[item.Item3],
-                    StrokeThickness = 0.5,
-                    Stroke = Brushes.Purple,
-                    Fill = Brushes.Purple
-                });
-
-                a = 960 - dotModelY[item.Item2];
-                b = 960 - dotModelY[item.Item3];
-
-                startCoord = a > b ? b : a;
-
-                for (int i = 0; i < Math.Abs(a - b); i++)
-                {
-                    if(lineMatrix[dotModelX[item.Item2], startCoord + i] == 1)
+                    if (lineMatrix[startCoord + i, aY] == 1)
                     {
-                        crossingDots.Add(new DotModel(dotModelX[item.Item2], startCoord + i, new Ellipse() { Fill = Brushes.Green, Height = 2, Width = 2 }));
+                        crossingDotsTemp.Add(new DotModel(startCoord + i + 1, aY - 1,
+                            new Ellipse() { Fill = Brushes.Green, Height = 2, Width = 2 }));
                     }
-                    else
+                    //else
+                    //{
+                    //    lineMatrix[startCoord + i, aY] = 1;
+                    //}
+                }
+
+                startCoord = aY > bY ? bY : aY;
+
+                for (int i = 0; i < Math.Abs(aY - bY); i++)
+                {
+                    if (lineMatrix[bX, startCoord + i] == 1)
                     {
-                        lineMatrix[dotModelX[item.Item2], startCoord + i] = 1;
+                        crossingDotsTemp.Add(new DotModel(bX + 1, startCoord + i - 1,
+                            new Ellipse() { Fill = Brushes.Green, Height = 2, Width = 2 }));
+                    }
+                    //else
+                    //{
+                    //    lineMatrix[bX, startCoord + i] = 1;
+                    //}
+                }
+
+                if(crossingDotsTemp.Count > 15)
+                {
+                    crossingDotsTemp.Clear();
+                    continue;
+                }
+                else
+                {
+                    foreach (var crossDot in crossingDotsTemp)
+                    {
+                        lineMatrix[crossDot.CanvasX - 1, crossDot.CanvasY + 1] = 1;
+                        crossingDots.Add(crossDot);
                     }
                 }
 
-                lines.Add(new Line()
-                {
-                    X1 = dotModelX[item.Item2],
-                    Y1 = 960 - dotModelY[item.Item3],
-                    X2 = dotModelX[item.Item3],
-                    Y2 = 960 - dotModelY[item.Item3],
-                    StrokeThickness = 0.5,
-                    Stroke = Brushes.Purple,
-                    Fill = Brushes.Purple
-                });
+                Polyline polyline = new Polyline();
+                polyline.ToolTip = toolTip;
+                polyline.Stroke = Brushes.Purple;
+                polyline.StrokeThickness = 0.5;
+                polyline.Points.Add(new System.Windows.Point(aX + 1, aY - 1));
+                polyline.Points.Add(new System.Windows.Point(bX + 1, aY - 1));
+                polyline.Points.Add(new System.Windows.Point(bX + 1, bY - 1));
 
-                a = dotModelX[item.Item2];
-                b = dotModelX[item.Item3];
+                lines.Add(polyline);
 
-                startCoord = a > b ? b : a;
+                //startCoord = a > b ? b : a;
 
-                for (int i = 0; i < Math.Abs(a - b); i++)
-                {
-                    if (lineMatrix[startCoord + i, dotModelY[item.Item3]] == 1)
-                    {
-                        crossingDots.Add(new DotModel(startCoord + i, dotModelY[item.Item3], new Ellipse() { Fill = Brushes.Green, Height = 2, Width = 2 }));
-                    }
-                    else
-                    {
-                        lineMatrix[startCoord + i, 960 - dotModelY[item.Item3]] = 1;
-                    }
-                }
+                //for (int i = 0; i < Math.Abs(a - b); i++)
+                //{
+                //    if(lineMatrix[dotModelX[item.Item3], startCoord + i] == 1)
+                //    {
+                //        crossingDots.Add(new DotModel(dotModelX[item.Item3], startCoord + i, 
+                //            new Ellipse() { Fill = Brushes.Green, Height = 2, Width = 2 }));
+
+                //    }
+                //    else
+                //    {
+                //        lineMatrix[dotModelX[item.Item3], startCoord + i] = 1;
+                //    }
+                //}
+
+                //lines.Add(new Line()
+                //{
+                //    X1 = dotModelX[item.Item3],
+                //    Y1 = 960 - dotModelY[item.Item3],
+                //    X2 = dotModelX[item.Item3],
+                //    Y2 = 960 - dotModelY[item.Item4],
+                //    StrokeThickness = 0.5,
+                //    Stroke = Brushes.Purple,
+                //    Fill = Brushes.Purple,
+                //    ToolTip = toolTip,
+                //});
+
+
+
+                //startCoord = a > b ? b : a;
+
+                //for (int i = 0; i < Math.Abs(a - b); i++)
+                //{
+                //    if (lineMatrix[startCoord + i, dotModelY[item.Item4]] == 1)
+                //    {
+                //        crossingDots.Add(new DotModel(startCoord + i, dotModelY[item.Item4], 
+                //            new Ellipse() { Fill = Brushes.Green, Height = 2, Width = 2 }));
+                //    }
+                //    else
+                //    {
+                //        lineMatrix[startCoord + i, 960 - dotModelY[item.Item4]] = 1;
+                //    }
+                //}
+
+                //lines.Add(new Line()
+                //{
+                //    X1 = dotModelX[item.Item3],
+                //    Y1 = 960 - dotModelY[item.Item4],
+                //    X2 = dotModelX[item.Item4],
+                //    Y2 = 960 - dotModelY[item.Item4],
+                //    StrokeThickness = 0.5,
+                //    Stroke = Brushes.Purple,
+                //    Fill = Brushes.Purple,
+                //    ToolTip = toolTip
+                //});
             }
 
             return lines;
@@ -156,19 +212,19 @@ namespace PredmetniZadatak_1.Lines
 
         private void LeastToMostDistance()
         {
-            for (int i = 0; i < this.LineIDs.Item1.Count; i++)//this.LineIDs.Item1.Count
+            foreach (var line in LineIDs)
             {
-                if (dotModelX.ContainsKey(this.LineIDs.Item1[i]) && dotModelY.ContainsKey(this.LineIDs.Item1[i])
-               && dotModelX.ContainsKey(this.LineIDs.Item2[i]) && dotModelY.ContainsKey(this.LineIDs.Item2[i]))
+                if (dotModelX.ContainsKey(line.Item2) && dotModelY.ContainsKey(line.Item3)
+              && dotModelX.ContainsKey(line.Item3) && dotModelY.ContainsKey(line.Item3))
                 {
-                    int startX = dotModelX[this.LineIDs.Item1[i]];
-                    int startY = 960 - dotModelY[this.LineIDs.Item1[i]];
-                    int endX = dotModelX[this.LineIDs.Item2[i]];
-                    int endY = 960 - dotModelY[this.LineIDs.Item2[i]];
+                    int startX = dotModelX[line.Item2];
+                    int startY = 960 - dotModelY[line.Item2];
+                    int endX = dotModelX[line.Item3];
+                    int endY = 960 - dotModelY[line.Item3];
 
                     double distance = Math.Sqrt((Math.Pow(startX - endX, 2) + Math.Pow(startY - endY, 2)));
 
-                    distanceLineIds.Add(new Tuple<double, long, long>(distance, this.LineIDs.Item1[i], this.LineIDs.Item2[i]));
+                    distanceLineIds.Add(new Tuple<double, string, long, long>(distance, line.Item1, line.Item2, line.Item3));
                 }
             }
 

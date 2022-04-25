@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Shapes;
 
 namespace PredmetniZadatak_1.BFS
 {
@@ -85,6 +86,8 @@ namespace PredmetniZadatak_1.BFS
 
         private void ExploreNodes(int currentRow, int currentColum)
         {
+            Node node = new Node();
+
             for (int i = 0; i < 4; i++)
             {
                 int nextRow = currentRow + directionRow[i];
@@ -105,7 +108,6 @@ namespace PredmetniZadatak_1.BFS
                 visitedNodes[nextRow, nextColum] = true;
                 nodesInNextLayer++;
 
-                Node node = new Node();
                 node.row = currentRow;
                 node.colum = currentColum;
 
@@ -113,20 +115,21 @@ namespace PredmetniZadatak_1.BFS
             }
         }
 
-        public List<Node> ReconstructPath(int startRow, int startColum, int endRow, int endColum)
+        public Polyline ReconstructPath(int startRow, int startColum, int endRow, int endColum)
         {
-            List<Node> path = new List<Node>();
+            Polyline path = new Polyline();
+            Node node = new Node();
 
             int rowRead = endRow;
             int columRead = endColum;
 
             for (int i = 0; i < moveCount + 1; i++)
             {
-                Node node = new Node();
                 node.row = rowRead;
                 node.colum = columRead;
 
-                path.Add(node);
+                path.Points.Add(
+                    new System.Windows.Point(double.Parse(rowRead.ToString()) + 1, double.Parse(columRead.ToString()) - 1));
 
                 Node n = prev[rowRead, columRead];
 
@@ -134,18 +137,16 @@ namespace PredmetniZadatak_1.BFS
                 columRead = n.colum;
             }
 
-            path.Reverse();
-
-            if(path[0].row == startRow && path[0].colum == startColum)
+            if(path.Points[path.Points.Count - 1].X - 1 == startRow && path.Points[path.Points.Count - 1].Y + 1 == startColum)
             {
-                foreach (var item in path)
+                foreach (var item in path.Points)
                 {
-                    matrix[item.row, item.colum] = 1;
+                    matrix[int.Parse(item.X.ToString()) - 1, int.Parse(item.Y.ToString()) + 1] = 1;
                 }
                 return path;
             }
 
-            path.Clear();
+            path.Points.Clear();
             return path;
         }
 
@@ -157,8 +158,8 @@ namespace PredmetniZadatak_1.BFS
             nodesLeftInLayer = 1;
             nodesInNextLayer = 0;
             isEnd = false;
-            visitedNodes = new bool[rowSize, columSize];
-            prev = new Node[rowSize, columSize];
+            Array.Clear(visitedNodes, 0, visitedNodes.Length);
+            Array.Clear(prev, 0, prev.Length);
         }
     }
 }

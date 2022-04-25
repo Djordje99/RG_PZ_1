@@ -164,40 +164,53 @@ namespace PredmetniZadatak_1
 
         private void DrawLinesBfs()
         {
-            List<Line> lines = line.AddLineBfs();
+            List<Polyline> lines = line.AddLineBfs();
 
             foreach (var item in lines)
             {
                 item.MouseRightButtonDown += ShowColorDialog;
+
                 canvas1.Children.Add(item);
             }
         }
 
         private void DrawLinesCrossing()
         {
-            List<Line> lines = line.AddLineCrossing(out List<DotModel> crossingDots);
+            List<Polyline> lines = line.AddLineCrossing(out List<DotModel> crossingDots);
 
             foreach (var item in lines)
             {
+                item.MouseRightButtonDown += ShowColorDialog;
+
                 canvas1.Children.Add(item);
             }
 
             foreach (var item in crossingDots)
             {
-                Canvas.SetLeft(item.Ellipse, item.CanvasX);
-                Canvas.SetTop(item.Ellipse, item.CanvasY);
+                Canvas.SetLeft(item.Ellipse, item.CanvasX - 1);
+                Canvas.SetTop(item.Ellipse, item.CanvasY - 1);
 
-                canvas1.Children.Add(item.Ellipse);
+                try
+                {
+                    canvas1.Children.Add(item.Ellipse);
+                }
+                catch 
+                {
+                    continue;
+                }
             }
         }
 
         private void ShowColorDialog(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            Line sourceLine = e.Source as Line;
+            Polyline sourceLine = e.Source as Polyline;
             string toolTipString = sourceLine.ToolTip.ToString().Split(':')[1].Trim();
 
-            Ellipse ellipse1 = canvas1.Children[indexOnCanvas["id_" + toolTipString.Split('-')[0]]] as Ellipse;
-            Ellipse ellipse2 = canvas1.Children[indexOnCanvas["id_" + toolTipString.Split('-')[1]]] as Ellipse;
+            string ellipse1ID = "id_" + toolTipString.Split('\n')[8].Split(' ')[1];
+            string ellipse2ID = "id_" + toolTipString.Split('\n')[9].Split(' ')[1];
+        
+            Ellipse ellipse1 = canvas1.Children[indexOnCanvas[ellipse1ID]] as Ellipse;
+            Ellipse ellipse2 = canvas1.Children[indexOnCanvas[ellipse2ID]] as Ellipse;
 
             ColorDialog colorPicker = new ColorDialog();
             
@@ -220,15 +233,15 @@ namespace PredmetniZadatak_1
                     ToolTip = ellipse2.ToolTip,
                 };
 
-                int x = indexCoords[indexOnCanvas["id_" + toolTipString.Split('-')[0]]].Item1;
-                int y = indexCoords[indexOnCanvas["id_" + toolTipString.Split('-')[0]]].Item2;
+                int x = indexCoords[indexOnCanvas[ellipse1ID]].Item1;
+                int y = indexCoords[indexOnCanvas[ellipse1ID]].Item2;
                 Canvas.SetLeft(e1, x);
                 Canvas.SetBottom(e1, y);
 
                 canvas1.Children.Add(e1);
 
-                x = indexCoords[indexOnCanvas["id_" + toolTipString.Split('-')[1]]].Item1;
-                y = indexCoords[indexOnCanvas["id_" + toolTipString.Split('-')[1]]].Item2;
+                x = indexCoords[indexOnCanvas[ellipse2ID]].Item1;
+                y = indexCoords[indexOnCanvas[ellipse2ID]].Item2;
                 Canvas.SetLeft(e2, x);
                 Canvas.SetBottom(e2, y);
 
