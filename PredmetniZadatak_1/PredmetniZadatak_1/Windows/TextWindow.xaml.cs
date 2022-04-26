@@ -29,14 +29,22 @@ namespace PredmetniZadatak_1.Windows
             InitializeComponent();
         }
 
+        public TextWindow(TextBlock source)
+        {
+            InitializeComponent();
+            text.Text = source.Text;
+            size.Text = source.FontSize.ToString();
+            colorText.Background = source.Foreground;
+        }
+
         private void PickColorText(object sender, RoutedEventArgs e)
         {
             ColorDialog cd = new ColorDialog();
 
             if (cd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                colorTextProp = new SolidColorBrush(Color.FromArgb(cd.Color.A, cd.Color.R, cd.Color.G, cd.Color.B));
-                colorText.Background = colorTextProp;
+                //colorTextProp = new SolidColorBrush(Color.FromArgb(cd.Color.A, cd.Color.R, cd.Color.G, cd.Color.B));
+                colorText.Background = new SolidColorBrush(Color.FromArgb(cd.Color.A, cd.Color.R, cd.Color.G, cd.Color.B));
             }
         }
 
@@ -46,6 +54,7 @@ namespace PredmetniZadatak_1.Windows
             text.BorderBrush = Brushes.Black;
 
             textProp = text.Text;
+            colorTextProp = colorText.Background as SolidColorBrush;
 
             if (size.Text == "" || !double.TryParse(size.Text, out textSizeProp))
                 size.BorderBrush = Brushes.Red;

@@ -406,6 +406,8 @@ namespace PredmetniZadatak_1
 
                 tb.Background = vb;
 
+                tb.MouseLeftButtonDown += EditEllipse;
+
                 elementOnCanvas.Add(tb);
 
                 canvas1.Children.Add(tb);
@@ -433,6 +435,8 @@ namespace PredmetniZadatak_1
                     Padding = new Thickness() { Top = mousePos.Y - tw.textSizeProp, Left = mousePos.X }
                 };
 
+                tb.MouseLeftButtonDown += EditText;
+
                 elementOnCanvas.Add(tb);
 
                 canvas1.Children.Add(tb);
@@ -453,8 +457,6 @@ namespace PredmetniZadatak_1
             double widthMax = mousePoligonPoints.Max(x => x.X);
             double widthMin = mousePoligonPoints.Min(x => x.X);
 
-            StackPanel sp = new StackPanel();
-
             Polygon polygon = new Polygon()
             {
                 Points = new PointCollection(mousePoligonPoints),
@@ -472,12 +474,13 @@ namespace PredmetniZadatak_1
                 Width = widthMax - widthMin,
                 Margin = new Thickness() { Top = heightMin, Left = widthMin },
                 Padding = new Thickness() { Top = (heightMax - heightMin + 6) / 2 }
-
             };
 
             VisualBrush vb = new VisualBrush();
             vb.Visual = polygon;
             tb.Background = vb;
+
+            tb.MouseLeftButtonDown += EditPolygon;
 
             elementOnCanvas.Add(tb);
 
@@ -486,5 +489,48 @@ namespace PredmetniZadatak_1
             mousePoligonPoints.Clear();
         }
         #endregion
+
+        private void EditPolygon(object sender, MouseButtonEventArgs e)
+        {
+            TextBlock source = e.Source as TextBlock;
+            PolygonWindow pw = new PolygonWindow(source);
+            pw.ShowDialog();
+
+            source.Text = pw.textProp;
+            source.Foreground = pw.colorTextProp;
+            ((source.Background as VisualBrush).Visual as Polygon).Fill = pw.colorFillProp;
+            ((source.Background as VisualBrush).Visual as Polygon).Stroke = pw.colorBorderProp;
+            ((source.Background as VisualBrush).Visual as Polygon).StrokeThickness = pw.borderProp;
+        }
+
+        private void EditText(object sender, MouseButtonEventArgs e)
+        {
+            TextBlock source = e.Source as TextBlock;
+            TextWindow tw = new TextWindow(source);
+            tw.ShowDialog();
+
+            source.Text = tw.textProp;
+            source.Foreground = tw.colorTextProp;
+            source.FontSize = tw.textSizeProp;
+        }
+
+        private void EditEllipse(object sender, MouseButtonEventArgs e)
+        {
+            TextBlock source = e.Source as TextBlock;
+            EllipseWindow ew = new EllipseWindow(source);
+            ew.ShowDialog();
+
+            source.Text = ew.textProp;
+            source.Foreground = ew.colorTextProp;
+            ((source.Background as VisualBrush).Visual as Ellipse).Fill = ew.colorFillProp;
+            ((source.Background as VisualBrush).Visual as Ellipse).Stroke = ew.colorBorderProp;
+            ((source.Background as VisualBrush).Visual as Ellipse).StrokeThickness = ew.borderProp;
+            ((source.Background as VisualBrush).Visual as Ellipse).Height = ew.heightProp;
+            ((source.Background as VisualBrush).Visual as Ellipse).Width = ew.widthProp;
+            source.Height = ew.heightProp + 10;
+            source.Width = ew.widthProp + 10;
+            source.Padding = new Thickness() { Top = ((ew.heightProp - 6) / 2) };
+
+        }
     }
 }

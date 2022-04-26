@@ -33,14 +33,26 @@ namespace PredmetniZadatak_1.Windows
             InitializeComponent();
         }
 
+        public EllipseWindow(TextBlock source)
+        {
+            InitializeComponent();
+            text.Text = source.Text;
+            colorText.Background = source.Foreground;
+            colorFill.Background = ((source.Background as VisualBrush).Visual as Ellipse).Fill;
+            colorBorder.Background = ((source.Background as VisualBrush).Visual as Ellipse).Stroke;
+            border.Text = ((source.Background as VisualBrush).Visual as Ellipse).StrokeThickness.ToString();
+            height.Text = ((source.Background as VisualBrush).Visual as Ellipse).Height.ToString();
+            width.Text = ((source.Background as VisualBrush).Visual as Ellipse).Width.ToString();
+        }
+
         private void PickColorFill(object sender, RoutedEventArgs e)
         {
             ColorDialog cd = new ColorDialog();
 
             if(cd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                colorFillProp = new SolidColorBrush(Color.FromArgb(cd.Color.A, cd.Color.R, cd.Color.G, cd.Color.B));
-                colorFill.Background = colorFillProp;
+                //colorFillProp = new SolidColorBrush(Color.FromArgb(cd.Color.A, cd.Color.R, cd.Color.G, cd.Color.B));
+                colorFill.Background = new SolidColorBrush(Color.FromArgb(cd.Color.A, cd.Color.R, cd.Color.G, cd.Color.B));
             }
         }
 
@@ -50,8 +62,8 @@ namespace PredmetniZadatak_1.Windows
 
             if (cd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                colorTextProp = new SolidColorBrush(Color.FromArgb(cd.Color.A, cd.Color.R, cd.Color.G, cd.Color.B));
-                colorText.Background = colorTextProp;
+                //colorTextProp = new SolidColorBrush(Color.FromArgb(cd.Color.A, cd.Color.R, cd.Color.G, cd.Color.B));
+                colorText.Background = new SolidColorBrush(Color.FromArgb(cd.Color.A, cd.Color.R, cd.Color.G, cd.Color.B));
             }
         }
 
@@ -61,8 +73,8 @@ namespace PredmetniZadatak_1.Windows
 
             if (cd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                colorBorderProp = new SolidColorBrush(Color.FromArgb(cd.Color.A, cd.Color.R, cd.Color.G, cd.Color.B));
-                colorBorder.Background = colorBorderProp;
+                //colorBorderProp = new SolidColorBrush(Color.FromArgb(cd.Color.A, cd.Color.R, cd.Color.G, cd.Color.B));
+                colorBorder.Background = new SolidColorBrush(Color.FromArgb(cd.Color.A, cd.Color.R, cd.Color.G, cd.Color.B));
             }
         }
 
@@ -73,6 +85,9 @@ namespace PredmetniZadatak_1.Windows
             border.BorderBrush = Brushes.Black;
 
             textProp = text.Text;
+            colorBorderProp = colorBorder.Background as SolidColorBrush;
+            colorTextProp = colorText.Background as SolidColorBrush;
+            colorFillProp = colorFill.Background as SolidColorBrush;
 
             if (height.Text == "" || !double.TryParse(height.Text, out heightProp))
                 height.BorderBrush = Brushes.Red;

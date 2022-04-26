@@ -58,8 +58,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BFS\BfsAglorithm.cs" />
-    <Compile Include="Commands\CanExecuteCommands.cs" />
-    <Compile Include="Commands\ExecuteCommands.cs" />
     <Compile Include="Commands\RoutedCommands.cs" />
     <Compile Include="Dots\DotFormater.cs" />
     <Compile Include="Dots\DotScaler.cs" />

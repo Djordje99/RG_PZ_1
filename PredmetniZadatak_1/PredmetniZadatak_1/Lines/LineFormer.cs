@@ -81,6 +81,8 @@ namespace PredmetniZadatak_1.Lines
             crossingDots = new List<DotModel>();
             List<DotModel> crossingDotsTemp = new List<DotModel>();
             int[,] lineMatrix = bfs.Matrix;
+            int disposedLines = 0;
+            DotModel prevDot = null;
 
             int aX, aY, bX, bY;
 
@@ -104,10 +106,6 @@ namespace PredmetniZadatak_1.Lines
                         crossingDotsTemp.Add(new DotModel(startCoord + i + 1, aY - 1,
                             new Ellipse() { Fill = Brushes.Green, Height = 2, Width = 2 }));
                     }
-                    //else
-                    //{
-                    //    lineMatrix[startCoord + i, aY] = 1;
-                    //}
                 }
 
                 startCoord = aY > bY ? bY : aY;
@@ -119,23 +117,24 @@ namespace PredmetniZadatak_1.Lines
                         crossingDotsTemp.Add(new DotModel(bX + 1, startCoord + i - 1,
                             new Ellipse() { Fill = Brushes.Green, Height = 2, Width = 2 }));
                     }
-                    //else
-                    //{
-                    //    lineMatrix[bX, startCoord + i] = 1;
-                    //}
                 }
 
                 if(crossingDotsTemp.Count > 15)
                 {
                     crossingDotsTemp.Clear();
+                    disposedLines++;
                     continue;
                 }
                 else
                 {
                     foreach (var crossDot in crossingDotsTemp)
                     {
-                        lineMatrix[crossDot.CanvasX - 1, crossDot.CanvasY + 1] = 1;
-                        crossingDots.Add(crossDot);
+                        if(prevDot != null && (prevDot.CanvasX != crossDot.CanvasX || prevDot.CanvasY != crossDot.CanvasY))
+                        {
+                            lineMatrix[crossDot.CanvasX - 1, crossDot.CanvasY + 1] = 1;
+                            crossingDots.Add(crossDot);
+                        }
+                        prevDot = crossDot;
                     }
                 }
 
@@ -148,63 +147,6 @@ namespace PredmetniZadatak_1.Lines
                 polyline.Points.Add(new System.Windows.Point(bX + 1, bY - 1));
 
                 lines.Add(polyline);
-
-                //startCoord = a > b ? b : a;
-
-                //for (int i = 0; i < Math.Abs(a - b); i++)
-                //{
-                //    if(lineMatrix[dotModelX[item.Item3], startCoord + i] == 1)
-                //    {
-                //        crossingDots.Add(new DotModel(dotModelX[item.Item3], startCoord + i, 
-                //            new Ellipse() { Fill = Brushes.Green, Height = 2, Width = 2 }));
-
-                //    }
-                //    else
-                //    {
-                //        lineMatrix[dotModelX[item.Item3], startCoord + i] = 1;
-                //    }
-                //}
-
-                //lines.Add(new Line()
-                //{
-                //    X1 = dotModelX[item.Item3],
-                //    Y1 = 960 - dotModelY[item.Item3],
-                //    X2 = dotModelX[item.Item3],
-                //    Y2 = 960 - dotModelY[item.Item4],
-                //    StrokeThickness = 0.5,
-                //    Stroke = Brushes.Purple,
-                //    Fill = Brushes.Purple,
-                //    ToolTip = toolTip,
-                //});
-
-
-
-                //startCoord = a > b ? b : a;
-
-                //for (int i = 0; i < Math.Abs(a - b); i++)
-                //{
-                //    if (lineMatrix[startCoord + i, dotModelY[item.Item4]] == 1)
-                //    {
-                //        crossingDots.Add(new DotModel(startCoord + i, dotModelY[item.Item4], 
-                //            new Ellipse() { Fill = Brushes.Green, Height = 2, Width = 2 }));
-                //    }
-                //    else
-                //    {
-                //        lineMatrix[startCoord + i, 960 - dotModelY[item.Item4]] = 1;
-                //    }
-                //}
-
-                //lines.Add(new Line()
-                //{
-                //    X1 = dotModelX[item.Item3],
-                //    Y1 = 960 - dotModelY[item.Item4],
-                //    X2 = dotModelX[item.Item4],
-                //    Y2 = 960 - dotModelY[item.Item4],
-                //    StrokeThickness = 0.5,
-                //    Stroke = Brushes.Purple,
-                //    Fill = Brushes.Purple,
-                //    ToolTip = toolTip
-                //});
             }
 
             return lines;
