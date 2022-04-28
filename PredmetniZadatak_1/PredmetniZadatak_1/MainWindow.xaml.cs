@@ -176,7 +176,8 @@ namespace PredmetniZadatak_1
 
         private void DrawLinesCrossing()
         {
-            List<Polyline> lines = line.AddLineCrossing(out List<DotModel> crossingDots);
+            List<DotModel> crossingDots = new List<DotModel>();
+            List<Polyline> lines = line.AddLineCrossing(out crossingDots);
 
             foreach (var item in lines)
             {
@@ -187,17 +188,10 @@ namespace PredmetniZadatak_1
 
             foreach (var item in crossingDots)
             {
-                Canvas.SetLeft(item.Ellipse, item.CanvasX - 1);
-                Canvas.SetTop(item.Ellipse, item.CanvasY - 1);
+                Canvas.SetLeft(item.Ellipse, item.CanvasX + 0.5);
+                Canvas.SetTop(item.Ellipse, item.CanvasY - 1.7);
 
-                try
-                {
-                    canvas1.Children.Add(item.Ellipse);
-                }
-                catch 
-                {
-                    continue;
-                }
+                canvas1.Children.Add(item.Ellipse);
             }
         }
 
@@ -382,6 +376,9 @@ namespace PredmetniZadatak_1
                 EllipseWindow ew = new EllipseWindow();
                 ew.ShowDialog();
 
+                if (!ew.isFormGood)
+                    return;
+
                 Ellipse el = new Ellipse()
                 {
                     Width = ew.widthProp,
@@ -426,6 +423,9 @@ namespace PredmetniZadatak_1
                 TextWindow tw = new TextWindow();
                 tw.ShowDialog();
 
+                if (!tw.isFormGood)
+                    return;
+
                 TextBlock tb = new TextBlock()
                 {
                     Text = tw.textProp,
@@ -451,6 +451,9 @@ namespace PredmetniZadatak_1
 
             PolygonWindow pw = new PolygonWindow();
             pw.ShowDialog();
+
+            if (!pw.isFormGood)
+                return;
 
             double heightMax = mousePoligonPoints.Max(x => x.Y);
             double heightMin = mousePoligonPoints.Min(x => x.Y);

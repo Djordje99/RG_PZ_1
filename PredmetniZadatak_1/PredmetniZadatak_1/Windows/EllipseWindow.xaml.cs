@@ -27,6 +27,7 @@ namespace PredmetniZadatak_1.Windows
         public double heightProp = 0;
         public double borderProp = 0;
         public SolidColorBrush colorTextProp = Brushes.Transparent;
+        public bool isFormGood = false;
 
         public EllipseWindow()
         {
@@ -97,7 +98,11 @@ namespace PredmetniZadatak_1.Windows
                 border.BorderBrush = Brushes.Red;
 
             if (heightProp > 0 && widthProp > 0 && borderProp > 0)
+            {
+                isFormGood = true;
                 this.Close();
+            }
+
         }
 
         private void Cancel(object sender, RoutedEventArgs e)

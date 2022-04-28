@@ -78,11 +78,8 @@ namespace PredmetniZadatak_1.Lines
         public List<Polyline> AddLineCrossing(out List<DotModel> crossingDots)
         {
             List<Polyline> lines = new List<Polyline>();
-            crossingDots = new List<DotModel>();
             List<DotModel> crossingDotsTemp = new List<DotModel>();
             int[,] lineMatrix = bfs.Matrix;
-            int disposedLines = 0;
-            DotModel prevDot = null;
 
             int aX, aY, bX, bY;
 
@@ -101,42 +98,81 @@ namespace PredmetniZadatak_1.Lines
 
                 for (int i = 0; i < Math.Abs(aX - bX); i++)
                 {
-                    if (lineMatrix[startCoord + i, aY] == 1)
+                    if(lineMatrix[startCoord + i, aY] != 1)
                     {
-                        crossingDotsTemp.Add(new DotModel(startCoord + i + 1, aY - 1,
-                            new Ellipse() { Fill = Brushes.Green, Height = 2, Width = 2 }));
+                        lineMatrix[startCoord + i, aY] = 1;
                     }
+                    //if (lineMatrix[startCoord + i, aY] == 1)
+                    //{
+                    //    crossingDotsTemp.Add(new DotModel(startCoord + i + 1, aY - 1,
+                    //        new Ellipse() { Fill = Brushes.Green, Height = 1.5, Width = 1.5 }));
+                    //}
+                    //else
+                    //{
+                    //    lineMatrix[startCoord + i, aY] = 1;
+                    //}
                 }
 
                 startCoord = aY > bY ? bY : aY;
 
                 for (int i = 0; i < Math.Abs(aY - bY); i++)
                 {
-                    if (lineMatrix[bX, startCoord + i] == 1)
+                    if (lineMatrix[bX, startCoord + i] != 1)
                     {
-                        crossingDotsTemp.Add(new DotModel(bX + 1, startCoord + i - 1,
-                            new Ellipse() { Fill = Brushes.Green, Height = 2, Width = 2 }));
+                        lineMatrix[bX, startCoord + i] = 1;
                     }
+                    //if (lineMatrix[bX, startCoord + i] == 1)
+                    //{
+                    //    crossingDotsTemp.Add(new DotModel(bX + 1, startCoord + i - 1,
+                    //        new Ellipse() { Fill = Brushes.Green, Height = 1.5, Width = 1.5 }));
+                    //}
+                    //else
+                    //{
+                    //    lineMatrix[bX, startCoord + i] = 1;
+                    //}
                 }
 
-                if(crossingDotsTemp.Count > 15)
-                {
-                    crossingDotsTemp.Clear();
-                    disposedLines++;
-                    continue;
-                }
-                else
-                {
-                    foreach (var crossDot in crossingDotsTemp)
-                    {
-                        if(prevDot != null && (prevDot.CanvasX != crossDot.CanvasX || prevDot.CanvasY != crossDot.CanvasY))
-                        {
-                            lineMatrix[crossDot.CanvasX - 1, crossDot.CanvasY + 1] = 1;
-                            crossingDots.Add(crossDot);
-                        }
-                        prevDot = crossDot;
-                    }
-                }
+                //if(crossingDotsTemp.Count > 25)
+                //{
+                //    crossingDotsTemp.Clear();
+                //    disposedLines++;
+                //    continue;
+                //}
+                //else
+                //{
+                //    foreach (var crossDot in crossingDotsTemp)
+                //    {
+                //        try
+                //        {
+                //            if (lineMatrix[crossDot.CanvasX, crossDot.CanvasY] == 1
+                //                && lineMatrix[crossDot.CanvasX + 1, crossDot.CanvasY] == 1
+                //                && lineMatrix[crossDot.CanvasX - 1, crossDot.CanvasY] == 1
+                //                && lineMatrix[crossDot.CanvasX, crossDot.CanvasY - 1] == 1
+                //                && lineMatrix[crossDot.CanvasX, crossDot.CanvasY + 1] == 1)
+                //            {
+                //                crossingDots.Add(crossDot);
+                //            }
+                //        }
+                //        catch
+                //        {
+                //            continue;
+                //        }
+                //    }
+                //}
+
+                //foreach (var crossDot in crossingDotsTemp)
+                //{
+                //    if (crossDot.CanvasX > 20 && crossDot.CanvasX < 960
+                //        && crossDot.CanvasY > 20 && crossDot.CanvasY < 960
+                //        && lineMatrix[crossDot.CanvasX, crossDot.CanvasY] == 1
+                //        && lineMatrix[crossDot.CanvasX + 1, crossDot.CanvasY] == 1
+                //        && lineMatrix[crossDot.CanvasX - 1, crossDot.CanvasY] == 1
+                //        && lineMatrix[crossDot.CanvasX, crossDot.CanvasY - 1] == 1
+                //        && lineMatrix[crossDot.CanvasX, crossDot.CanvasY + 1] == 1)
+                //    {
+                //        crossingDots.Add(crossDot);
+                //    }
+                //}
 
                 Polyline polyline = new Polyline();
                 polyline.ToolTip = toolTip;
@@ -149,7 +185,35 @@ namespace PredmetniZadatak_1.Lines
                 lines.Add(polyline);
             }
 
+            crossingDots = FindIntersection(lineMatrix);
+
             return lines;
+        }
+
+        private List<DotModel> FindIntersection(int[,] lineMatrix)
+        {
+            List<DotModel> intersections = new List<DotModel>();
+
+            for (int i = 20; i < 960; i++)
+            {
+                for (int j = 20; j < 960; j++)
+                {
+                    if (lineMatrix[i, j] == 1
+                        && lineMatrix[i + 1, j] == 1
+                        && lineMatrix[i - 1, j] == 1
+                        && lineMatrix[i, j - 1] == 1
+                        && lineMatrix[i, j + 1] == 1
+                        && lineMatrix[i + 1, j + 1] == 0
+                        && lineMatrix[i -1, j + 1] == 0
+                        && lineMatrix[i + 1, j - 1] == 0
+                        && lineMatrix[i - 1, j - 1] == 0)
+                    {
+                        intersections.Add(new DotModel(i, j, new Ellipse() { Fill = Brushes.Green, Height = 1.5, Width = 1.5 }));
+                    }
+                }
+            }
+
+            return intersections;
         }
 
         private void LeastToMostDistance()

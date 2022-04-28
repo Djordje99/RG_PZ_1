@@ -25,6 +25,7 @@ namespace PredmetniZadatak_1.Windows
         public SolidColorBrush colorBorderProp = Brushes.Transparent;
         public double borderProp = 0;
         public SolidColorBrush colorTextProp = Brushes.Transparent;
+        public bool isFormGood = false;
 
         public PolygonWindow()
         {
@@ -88,7 +89,11 @@ namespace PredmetniZadatak_1.Windows
                 border.BorderBrush = Brushes.Red;
 
             if (borderProp > 0)
+            {
+                isFormGood = true;
                 this.Close();
+            }
+
         }
 
         private void Cancel(object sender, RoutedEventArgs e)

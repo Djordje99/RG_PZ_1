@@ -23,7 +23,7 @@ namespace PredmetniZadatak_1.Windows
         public string textProp = "";
         public double textSizeProp = 0;
         public SolidColorBrush colorTextProp = Brushes.Transparent;
-
+        public bool isFormGood = false;
         public TextWindow()
         {
             InitializeComponent();
@@ -64,7 +64,11 @@ namespace PredmetniZadatak_1.Windows
             textProp = text.Text;
 
             if (textSizeProp > 0 && textProp != "")
+            {
+                isFormGood = true;
                 this.Close();
+            }
+
         }
 
         private void Cancel(object sender, RoutedEventArgs e)

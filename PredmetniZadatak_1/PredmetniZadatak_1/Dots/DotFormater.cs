@@ -47,7 +47,7 @@ namespace PredmetniZadatak_1.Dots
 
                 foreach (XmlNode node in nodes)
                 {
-                    Console.WriteLine(node);
+                    //Console.WriteLine(node);
 
                     string id = node.SelectSingleNode("Id").InnerText;
                     string name = node.SelectSingleNode("Name").InnerText;
