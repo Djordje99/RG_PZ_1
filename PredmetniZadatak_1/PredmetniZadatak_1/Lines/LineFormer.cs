@@ -88,6 +88,7 @@ namespace PredmetniZadatak_1.Lines
                 ToolTip toolTip = new ToolTip();
                 toolTip.Content = item.Item2;
                 int startCoord = 0;
+                int crossingCount = 0;
 
                 aY = 960 - dotModelY[item.Item3];
                 bY = 960 - dotModelY[item.Item4];
@@ -98,81 +99,43 @@ namespace PredmetniZadatak_1.Lines
 
                 for (int i = 0; i < Math.Abs(aX - bX); i++)
                 {
-                    if(lineMatrix[startCoord + i, aY] != 1)
+                    if (lineMatrix[startCoord + i, aY] >= 1)
                     {
-                        lineMatrix[startCoord + i, aY] = 1;
+                        crossingCount++;
                     }
-                    //if (lineMatrix[startCoord + i, aY] == 1)
-                    //{
-                    //    crossingDotsTemp.Add(new DotModel(startCoord + i + 1, aY - 1,
-                    //        new Ellipse() { Fill = Brushes.Green, Height = 1.5, Width = 1.5 }));
-                    //}
-                    //else
-                    //{
-                    //    lineMatrix[startCoord + i, aY] = 1;
-                    //}
+
+                    lineMatrix[startCoord + i, aY] += 1;
+                }
+
+                if (crossingCount > 15)
+                {
+                    for (int i = 0; i < Math.Abs(aX - bX); i++)
+                    {
+                        lineMatrix[startCoord + i, aY]--;
+                    }
+                    continue;
                 }
 
                 startCoord = aY > bY ? bY : aY;
 
                 for (int i = 0; i < Math.Abs(aY - bY); i++)
                 {
-                    if (lineMatrix[bX, startCoord + i] != 1)
+                    if (lineMatrix[bX, startCoord + i] >= 1)
                     {
-                        lineMatrix[bX, startCoord + i] = 1;
+                        crossingCount++;
                     }
-                    //if (lineMatrix[bX, startCoord + i] == 1)
-                    //{
-                    //    crossingDotsTemp.Add(new DotModel(bX + 1, startCoord + i - 1,
-                    //        new Ellipse() { Fill = Brushes.Green, Height = 1.5, Width = 1.5 }));
-                    //}
-                    //else
-                    //{
-                    //    lineMatrix[bX, startCoord + i] = 1;
-                    //}
+
+                    lineMatrix[bX, startCoord + i] += 1;
                 }
 
-                //if(crossingDotsTemp.Count > 25)
-                //{
-                //    crossingDotsTemp.Clear();
-                //    disposedLines++;
-                //    continue;
-                //}
-                //else
-                //{
-                //    foreach (var crossDot in crossingDotsTemp)
-                //    {
-                //        try
-                //        {
-                //            if (lineMatrix[crossDot.CanvasX, crossDot.CanvasY] == 1
-                //                && lineMatrix[crossDot.CanvasX + 1, crossDot.CanvasY] == 1
-                //                && lineMatrix[crossDot.CanvasX - 1, crossDot.CanvasY] == 1
-                //                && lineMatrix[crossDot.CanvasX, crossDot.CanvasY - 1] == 1
-                //                && lineMatrix[crossDot.CanvasX, crossDot.CanvasY + 1] == 1)
-                //            {
-                //                crossingDots.Add(crossDot);
-                //            }
-                //        }
-                //        catch
-                //        {
-                //            continue;
-                //        }
-                //    }
-                //}
-
-                //foreach (var crossDot in crossingDotsTemp)
-                //{
-                //    if (crossDot.CanvasX > 20 && crossDot.CanvasX < 960
-                //        && crossDot.CanvasY > 20 && crossDot.CanvasY < 960
-                //        && lineMatrix[crossDot.CanvasX, crossDot.CanvasY] == 1
-                //        && lineMatrix[crossDot.CanvasX + 1, crossDot.CanvasY] == 1
-                //        && lineMatrix[crossDot.CanvasX - 1, crossDot.CanvasY] == 1
-                //        && lineMatrix[crossDot.CanvasX, crossDot.CanvasY - 1] == 1
-                //        && lineMatrix[crossDot.CanvasX, crossDot.CanvasY + 1] == 1)
-                //    {
-                //        crossingDots.Add(crossDot);
-                //    }
-                //}
+                if (crossingCount > 15)
+                {
+                    for (int i = 0; i < Math.Abs(aY - bY); i++)
+                    {
+                        lineMatrix[bX, startCoord + i]--;
+                    }
+                    continue;
+                }
 
                 Polyline polyline = new Polyline();
                 polyline.ToolTip = toolTip;
@@ -198,15 +161,7 @@ namespace PredmetniZadatak_1.Lines
             {
                 for (int j = 20; j < 960; j++)
                 {
-                    if (lineMatrix[i, j] == 1
-                        && lineMatrix[i + 1, j] == 1
-                        && lineMatrix[i - 1, j] == 1
-                        && lineMatrix[i, j - 1] == 1
-                        && lineMatrix[i, j + 1] == 1
-                        && lineMatrix[i + 1, j + 1] == 0
-                        && lineMatrix[i -1, j + 1] == 0
-                        && lineMatrix[i + 1, j - 1] == 0
-                        && lineMatrix[i - 1, j - 1] == 0)
+                    if (lineMatrix[i, j] >= 2)
                     {
                         intersections.Add(new DotModel(i, j, new Ellipse() { Fill = Brushes.Green, Height = 1.5, Width = 1.5 }));
                     }
