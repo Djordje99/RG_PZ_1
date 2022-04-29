@@ -104,16 +104,7 @@ namespace PredmetniZadatak_1.Lines
                         crossingCount++;
                     }
 
-                    lineMatrix[startCoord + i, aY] += 1;
-                }
-
-                if (crossingCount > 15)
-                {
-                    for (int i = 0; i < Math.Abs(aX - bX); i++)
-                    {
-                        lineMatrix[startCoord + i, aY]--;
-                    }
-                    continue;
+                    //lineMatrix[startCoord + i, aY]++;
                 }
 
                 startCoord = aY > bY ? bY : aY;
@@ -125,17 +116,42 @@ namespace PredmetniZadatak_1.Lines
                         crossingCount++;
                     }
 
-                    lineMatrix[bX, startCoord + i] += 1;
+                    //lineMatrix[bX, startCoord + i]++;
                 }
 
-                if (crossingCount > 15)
+                if(crossingCount < 20)
                 {
+                    startCoord = aX > bX ? bX : aX;
+                    for (int i = 0; i < Math.Abs(aX - bX); i++)
+                    {
+                        lineMatrix[startCoord + i, aY]++;
+                    }
+
+                    startCoord = aY > bY ? bY : aY;
                     for (int i = 0; i < Math.Abs(aY - bY); i++)
                     {
-                        lineMatrix[bX, startCoord + i]--;
+                        lineMatrix[bX, startCoord + i]++;
                     }
+                }
+                else
+                {
                     continue;
                 }
+
+                //if (crossingCount >= 15)
+                //{
+
+                //    continue;
+                //}
+
+                //if (crossingCount >= 15)
+                //{
+                //    for (int i = 0; i < Math.Abs(aY - bY); i++)
+                //    {
+                //        lineMatrix[bX, startCoord + i]--;
+                //    }
+                //    continue;
+                //}
 
                 Polyline polyline = new Polyline();
                 polyline.ToolTip = toolTip;
@@ -161,7 +177,19 @@ namespace PredmetniZadatak_1.Lines
             {
                 for (int j = 20; j < 960; j++)
                 {
-                    if (lineMatrix[i, j] >= 2)
+                    //if (lineMatrix[i, j] >= 2)
+                    //{
+                    //    intersections.Add(new DotModel(i, j, new Ellipse() { Fill = Brushes.Green, Height = 1.5, Width = 1.5 }));
+                    //}
+                    if (lineMatrix[i, j] >= 2
+                        && lineMatrix[i + 1, j] <= 1
+                        && lineMatrix[i - 1, j] <= 1
+                        && lineMatrix[i, j - 1] <= 1
+                        && lineMatrix[i, j + 1] <= 1)
+                        //&& lineMatrix[i + 1, j + 1] == 0
+                        //&& lineMatrix[i - 1, j + 1] == 0
+                        //&& lineMatrix[i + 1, j - 1] == 0
+                        //&& lineMatrix[i - 1, j - 1] == 0)
                     {
                         intersections.Add(new DotModel(i, j, new Ellipse() { Fill = Brushes.Green, Height = 1.5, Width = 1.5 }));
                     }
